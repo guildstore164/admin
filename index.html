@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Sakura Store | Dashboard Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --sakura-dark: #ff4d6d; --bg: #fdf2f4; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); padding: 40px 5%; }
+        h2 { color: var(--sakura-dark); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+        .admin-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; background: #fff0f3; color: var(--sakura-dark); border-bottom: 2px solid #eee; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+
+        .status-badge { background: #e0f0ff; color: #4a90e2; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; }
+
+        .admin-badge { background: #ffe0ec; color: #ff4d6d; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; }
+
+        .btn-wa { background: #25d366; color: white; padding: 8px 12px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; }
+        .empty-msg { text-align: center; padding: 40px; color: #888; }
+        .btn-clear { background: #ff4d6d; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; float: right; margin-bottom: 10px; }
+    </style>
+</head>
+
+<body>
+
+<h2><i class="fa-solid fa-gauge-high"></i> Dashboard Pesanan Sakura</h2>
+
+<div class="admin-container">
+    <button class="btn-clear" onclick="clearData()">Hapus Semua Data</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Token</th>
+                <th>Waktu</th>
+                <th>User Roblox</th>
+                <th>Jumlah</th>
+                <th>WhatsApp</th>
+                <th>Admin</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+
+        <tbody id="orderTableBody"></tbody>
+    </table>
+
+    <div id="emptyMsg" class="empty-msg" style="display:none;">
+        Belum ada pesanan masuk 🌸
+    </div>
+</div>
+
+<script>
+function loadOrders() {
+    const tableBody = document.getElementById('orderTableBody');
+    const emptyMsg = document.getElementById('emptyMsg');
+    const orders = JSON.parse(localStorage.getItem('sakura_orders')) || {};
+    const keys = Object.keys(orders);
+
+    tableBody.innerHTML = "";
+
+    if (keys.length === 0) {
+        emptyMsg.style.display = "block";
+        return;
+    }
+
+    emptyMsg.style.display = "none";
+
+    keys.reverse().forEach(token => {
+        const item = orders[token];
+
+        const row = `
+            <tr>
+                <td><strong>${token}</strong></td>
+                <td>${item.time}</td>
+                <td><span class="status-badge">${item.user}</span></td>
+                <td>💎 ${parseInt(item.amt).toLocaleString()} Robux</td>
+                <td>${item.wa}</td>
+                <td><span class="admin-badge">${item.admin || '-'}</span></td>
+                <td>
+                    <a href="https://wa.me/${item.wa}?text=Halo%20kak%20${item.user},%20admin%20${item.admin || 'SakuraStore'}%20ingin%20konfirmasi%20pesanan%20${token}" 
+                       target="_blank" class="btn-wa">
+                       <i class="fa-brands fa-whatsapp"></i> Hubungi
+                    </a>
+                </td>
+            </tr>
+        `;
+
+        tableBody.innerHTML += row;
+    });
+}
+
+function clearData() {
+    if (confirm("Yakin ingin menghapus semua riwayat pesanan?")) {
+        localStorage.removeItem('sakura_orders');
+        loadOrders();
+    }
+}
+
+// Contoh dummy data biar langsung keliatan
+if (!localStorage.getItem('sakura_orders')) {
+    const dummy = {
+        "TRX001": {
+            time: "08-04-2026 10:00",
+            user: "Player123",
+            amt: "500",
+            wa: "628123456789",
+            admin: "Admin A"
+        },
+        "TRX002": {
+            time: "08-04-2026 11:00",
+            user: "NoobMaster",
+            amt: "1000",
+            wa: "628987654321",
+            admin: "Admin B"
+        }
+    };
+    localStorage.setItem('sakura_orders', JSON.stringify(dummy));
+}
+
+loadOrders();
+</script>
+
+</body>
+</html>
